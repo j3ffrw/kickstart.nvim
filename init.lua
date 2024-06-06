@@ -91,7 +91,7 @@ vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
 -- Set to true if you have a Nerd Font installed and selected in the terminal
-vim.g.have_nerd_font = false
+vim.g.have_nerd_font = true
 
 -- [[ Setting options ]]
 -- See `:help vim.opt`
@@ -227,6 +227,11 @@ vim.opt.rtp:prepend(lazypath)
 require('lazy').setup({
   -- NOTE: Plugins can be added with a link (or for a github repo: 'owner/repo' link).
   'tpope/vim-sleuth', -- Detect tabstop and shiftwidth automatically
+  'mfussenegger/nvim-ansible',
+  'github/copilot.vim',
+  'hashivim/vim-terraform',
+  'yorinasub17/vim-terragrunt',
+  'arouene/vim-ansible-vault',
 
   -- NOTE: Plugins can also be added by using a table,
   -- with the first argument being the link and the following
@@ -359,6 +364,26 @@ require('lazy').setup({
         --   },
         -- },
         -- pickers = {}
+        pickers = {
+          find_files = {
+            mappings = {
+              i = {
+                ['<C-u>'] = function(prompt_bufnr)
+                  local current_picker = require('telescope.actions.state').get_current_picker(prompt_bufnr)
+                  -- cwd is only set if passed as telescope option
+                  local cwd = current_picker.cwd and tostring(current_picker.cwd) or vim.loop.cwd()
+                  local parent_dir = vim.fs.dirname(cwd)
+
+                  require('telescope.actions').close(prompt_bufnr)
+                  require('telescope.builtin').find_files {
+                    prompt_title = vim.fs.basename(parent_dir),
+                    cwd = parent_dir,
+                  }
+                end,
+              },
+            },
+          },
+        },
         extensions = {
           ['ui-select'] = {
             require('telescope.themes').get_dropdown(),
@@ -577,7 +602,18 @@ require('lazy').setup({
         -- But for many setups, the LSP (`tsserver`) will work just fine
         -- tsserver = {},
         --
-
+        ansiblels = {
+          settings = {
+            validation = {
+              enabled = false,
+              lint = {
+                enabled = false,
+                path = 'ansible-lin',
+                arguments = '--fix',
+              },
+            },
+          },
+        },
         lua_ls = {
           -- cmd = {...},
           -- filetypes = { ...},
@@ -733,9 +769,9 @@ require('lazy').setup({
 
           -- If you prefer more traditional completion keymaps,
           -- you can uncomment the following lines
-          --['<CR>'] = cmp.mapping.confirm { select = true },
-          --['<Tab>'] = cmp.mapping.select_next_item(),
-          --['<S-Tab>'] = cmp.mapping.select_prev_item(),
+          ['<CR>'] = cmp.mapping.confirm { select = true },
+          ['<Tab>'] = cmp.mapping.select_next_item(),
+          ['<S-Tab>'] = cmp.mapping.select_prev_item(),
 
           -- Manually trigger a completion from nvim-cmp.
           --  Generally you don't need this, because nvim-cmp will display
@@ -910,3 +946,10 @@ require('lazy').setup({
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
+require('lspconfig').lua_ls.setup {}
+vim.filetype.add {
+  pattern = {
+    ['.*/.*[-_]playbook/.*.yml'] = 'yaml.ansible',
+    ['.*/.*[-_]role[-_].*/.*.yml'] = 'yaml.ansible',
+  },
+}

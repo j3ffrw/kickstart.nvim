@@ -953,3 +953,6 @@ vim.filetype.add {
     ['.*/.*[-_]role[-_].*/.*.yml'] = 'yaml.ansible',
   },
 }
+-- Ansible-Vault
+vim.keymap.set('n', '<leader>av', '<cmd>AnsibleVault<CR>', { desc = '[A]nsible [V]ault' })
+vim.keymap.set('n', '<leader>au', '<cmd>AnsibleUnvault<CR>', { desc = '[A]nsible [U]vault' })

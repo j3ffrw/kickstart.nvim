@@ -232,6 +232,7 @@ require('lazy').setup({
   'hashivim/vim-terraform',
   'yorinasub17/vim-terragrunt',
   'arouene/vim-ansible-vault',
+  'ThePrimeagen/git-worktree.nvim',
 
   -- NOTE: Plugins can also be added by using a table,
   -- with the first argument being the link and the following
@@ -951,8 +952,16 @@ vim.filetype.add {
   pattern = {
     ['.*/.*[-_]playbook/.*.yml'] = 'yaml.ansible',
     ['.*/.*[-_]role[-_].*/.*.yml'] = 'yaml.ansible',
+    ['.*/tws.environments.*/.*.yml'] = 'yaml.ansible',
   },
 }
 -- Ansible-Vault
 vim.keymap.set('n', '<leader>av', '<cmd>AnsibleVault<CR>', { desc = '[A]nsible [V]ault' })
 vim.keymap.set('n', '<leader>au', '<cmd>AnsibleUnvault<CR>', { desc = '[A]nsible [U]vault' })
+
+-- worktree
+require('git-worktree').setup()
+require('telescope').load_extension 'git_worktree'
+
+vim.keymap.set('n', '<leader>sr', "<CMD>lua require('telescope').extensions.git_worktree.git_worktrees()<CR>", silent)
+vim.keymap.set('n', '<leader>sR', "<CMD>lua require('telescope').extensions.git_worktree.git_worktrees()<CR>", silent)
